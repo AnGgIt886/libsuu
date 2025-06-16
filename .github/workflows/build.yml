@@ -33,7 +33,7 @@ jobs:
     - name: Grant execute permission to gradlew
       run: chmod +x ./gradlew
 
-    - name: Build AARs
+    - name: Build all AARs
       run: ./gradlew :core:assembleRelease :service:assembleRelease :nio:assembleRelease
 
     - name: Create GitHub Release
@@ -45,7 +45,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload core AAR to Release
+    - name: Upload core AAR
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ inputs.tag_name }}
@@ -53,7 +53,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload service AAR to Release
+    - name: Upload service AAR
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ inputs.tag_name }}
@@ -61,11 +61,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload nio AAR to Release
+    - name: Upload nio AAR
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ inputs.tag_name }}
-        files: service/build/outputs/aar/nio-release.aar
+        files: nio/build/outputs/aar/nio-release.aar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
