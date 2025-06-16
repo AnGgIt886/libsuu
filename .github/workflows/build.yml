@@ -1,0 +1,62 @@
+name: Manual Build & Release Libsu
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g., v1.2.3)'
+        required: true
+        type: string
+      release_name:
+        description: 'Release name (optional)'
+        required: false
+        type: string
+      release_notes:
+        description: 'Release notes (optional)'
+        required: false
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 17
+
+    - name: Grant execute permission to gradlew
+      run: chmod +x ./gradlew
+
+    - name: Build AARs
+      run: ./gradlew :core:assembleRelease :service:assembleRelease
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ inputs.tag_name }}
+        name: ${{ inputs.release_name || inputs.tag_name }}
+        body: ${{ inputs.release_notes || 'Auto-generated release from GitHub Actions' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload core AAR to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ inputs.tag_name }}
+        files: core/build/outputs/aar/core-release.aar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload service AAR to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ inputs.tag_name }}
+        files: service/build/outputs/aar/service-release.aar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
